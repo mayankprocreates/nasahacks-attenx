@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
+import { TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { locationImages } from '@/assets/location-images';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -273,7 +273,6 @@ const locationData: Record<string, any> = {
 
 const Location = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isVisible, setIsVisible] = useState(false);
   const isMobile = useIsMobile();
@@ -294,10 +293,6 @@ const Location = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
         <div className="text-center text-white">
           <h1 className="text-4xl font-bold mb-4">Location Not Found</h1>
-          <Button onClick={() => navigate('/')} className="bg-blue-600 hover:bg-blue-700">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return Home
-          </Button>
         </div>
       </div>
     );
@@ -315,15 +310,6 @@ const Location = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white">
       {/* Header */}
       <div className="relative z-10 p-4 sm:p-6">
-        <Button 
-          onClick={() => navigate('/')} 
-          variant="ghost" 
-          className="text-white hover:bg-white/10 mb-4 sm:mb-6 touch-manipulation"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Map
-        </Button>
-
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent leading-tight">
             {location.name}
@@ -492,12 +478,6 @@ const Location = () => {
             These dramatic changes are happening in our lifetime. Every fraction of a degree matters.
             Every year of delay makes recovery harder.
           </p>
-          <Button 
-            onClick={() => navigate('/')}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 sm:px-8 rounded-lg text-lg sm:text-xl touch-manipulation w-full sm:w-auto"
-          >
-            Explore More Locations
-          </Button>
         </Card>
       </div>
     </div>
