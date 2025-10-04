@@ -1,0 +1,625 @@
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { locationImages } from '@/assets/location-images';
+
+const locationData: Record<string, {
+  name: string;
+  subtitle: string;
+  keyStats: {
+    impact: string;
+    metric: string;
+    period: string;
+    icon: string;
+    color: string;
+    trend: 'up' | 'down';
+  };
+  visualData: {
+    title: string;
+    value: string;
+    change: string;
+    icon: string;
+    color: string;
+  }[];
+  timeline: {
+    year: string;
+    value: string;
+    description: string;
+  }[];
+  comparison: {
+    before: string;
+    after: string;
+    impact: string;
+  };
+}> = {
+  amazon: {
+    name: 'Amazon Rainforest',
+    subtitle: 'THE LUNGS OF EARTH UNDER SIEGE',
+    keyStats: {
+      impact: '-17%',
+      metric: 'Forest Lost',
+      period: '2000-2023',
+      icon: '🌳',
+      color: 'from-green-500 to-red-500',
+      trend: 'down'
+    },
+    visualData: [
+      { title: 'CARBON STORED', value: '150B', change: 'TONS', icon: '🏭', color: 'from-green-400 to-blue-500' },
+      { title: 'SPECIES HOME', value: '10%', change: 'OF GLOBAL BIODIVERSITY', icon: '🦋', color: 'from-yellow-400 to-green-500' },
+      { title: 'AREA CLEARED', value: '800K', change: 'KM² SINCE 1970', icon: '🪓', color: 'from-orange-400 to-red-500' },
+      { title: 'WATER CYCLE', value: '20%', change: 'OF FRESHWATER RECYCLED', icon: '💧', color: 'from-blue-400 to-cyan-500' }
+    ],
+    timeline: [
+      { year: '1970', value: '100%', description: 'Original forest cover' },
+      { year: '1990', value: '93%', description: '7% deforested' },
+      { year: '2004', value: '85%', description: 'Peak deforestation year' },
+      { year: '2023', value: '83%', description: 'Current coverage' }
+    ],
+    comparison: {
+      before: 'INTACT ECOSYSTEM',
+      after: 'MASSIVE CLEARANCE',
+      impact: 'CLIMATE DISRUPTION'
+    }
+  },
+  greenland: {
+    name: 'Greenland Ice Sheet',
+    subtitle: 'ANCIENT ICE VANISHING IN OUR LIFETIME',
+    keyStats: {
+      impact: '-280B',
+      metric: 'Tons Ice/Year',
+      period: '2010-2023',
+      icon: '❄️',
+      color: 'from-cyan-400 to-blue-600',
+      trend: 'down'
+    },
+    visualData: [
+      { title: 'SEA LEVEL RISE', value: '7.4M', change: 'IF FULLY MELTED', icon: '🌊', color: 'from-blue-400 to-red-500' },
+      { title: 'ICE THICKNESS', value: '1.67KM', change: 'AVERAGE DEPTH', icon: '🧊', color: 'from-cyan-300 to-blue-500' },
+      { title: 'SURFACE MELT', value: '96%', change: 'EXPERIENCED MELTING', icon: '🌡️', color: 'from-yellow-400 to-orange-500' },
+      { title: 'FRESHWATER', value: '8%', change: 'OF EARTH\'S RESERVES', icon: '💧', color: 'from-cyan-400 to-blue-600' }
+    ],
+    timeline: [
+      { year: '1990', value: '0', description: 'Baseline ice mass' },
+      { year: '2000', value: '-50B', description: 'Tons lost annually' },
+      { year: '2010', value: '-200B', description: 'Accelerating loss' },
+      { year: '2023', value: '-280B', description: 'Current loss rate' }
+    ],
+    comparison: {
+      before: 'STABLE ICE SHEET',
+      after: 'RAPID MELTING',
+      impact: 'RISING SEAS'
+    }
+  },
+  'aral-sea': {
+    name: 'Aral Sea',
+    subtitle: 'FROM WORLD\'S 4TH LARGEST LAKE TO DESERT',
+    keyStats: {
+      impact: '-90%',
+      metric: 'Water Volume',
+      period: '1960-2020',
+      icon: '🌊',
+      color: 'from-blue-400 to-yellow-600',
+      trend: 'down'
+    },
+    visualData: [
+      { title: 'AREA LOST', value: '89%', change: 'SURFACE REDUCTION', icon: '🏜️', color: 'from-blue-400 to-orange-500' },
+      { title: 'SALINITY', value: '10X', change: 'INCREASE', icon: '🧂', color: 'from-blue-300 to-red-400' },
+      { title: 'NEW DESERT', value: '54K', change: 'KM² ARALKUM DESERT', icon: '🌵', color: 'from-yellow-400 to-red-500' },
+      { title: 'JOBS LOST', value: '60K', change: 'FISHING INDUSTRY', icon: '🐟', color: 'from-blue-400 to-gray-500' }
+    ],
+    timeline: [
+      { year: '1960', value: '68,000', description: 'km² surface area' },
+      { year: '1980', value: '40,000', description: 'km² significant shrinking' },
+      { year: '2000', value: '17,000', description: 'km² critical levels' },
+      { year: '2020', value: '7,000', description: 'km² current size' }
+    ],
+    comparison: {
+      before: 'MASSIVE INLAND SEA',
+      after: 'BARREN DESERT',
+      impact: 'ECOSYSTEM COLLAPSE'
+    }
+  },
+  california: {
+    name: 'California',
+    subtitle: 'DROUGHT & WILDFIRE SURGE',
+    keyStats: {
+      impact: '+250%',
+      metric: 'Fire Area',
+      period: '1980-2020',
+      icon: '🔥',
+      color: 'from-orange-500 to-red-600',
+      trend: 'up'
+    },
+    visualData: [
+      { title: 'FIRE SEASON', value: '+2.5', change: 'MONTHS LONGER', icon: '📅', color: 'from-orange-400 to-red-500' },
+      { title: 'RECORD YEAR', value: '4.2M', change: 'ACRES BURNED 2020', icon: '🔥', color: 'from-red-400 to-red-600' },
+      { title: 'LAND SINKING', value: '28FT', change: 'CENTRAL VALLEY', icon: '⬇️', color: 'from-yellow-400 to-red-500' },
+      { title: 'TEMPERATURE', value: '+1.1°C', change: 'SINCE 1895', icon: '🌡️', color: 'from-yellow-300 to-red-400' }
+    ],
+    timeline: [
+      { year: '1970', value: '250K', description: 'acres avg burned' },
+      { year: '1990', value: '400K', description: 'acres increasing' },
+      { year: '2010', value: '800K', description: 'acres accelerating' },
+      { year: '2020', value: '1.2M', description: 'acres current avg' }
+    ],
+    comparison: {
+      before: 'MANAGEABLE FIRES',
+      after: 'MEGA WILDFIRES',
+      impact: 'CLIMATE EXTREMES'
+    }
+  },
+  dubai: {
+    name: 'Dubai',
+    subtitle: 'URBAN EXPANSION & LAND CREATION',
+    keyStats: {
+      impact: '+400%',
+      metric: 'Land Area',
+      period: '1990-2020',
+      icon: '🏗️',
+      color: 'from-yellow-500 to-purple-600',
+      trend: 'up'
+    },
+    visualData: [
+      { title: 'LAND CREATED', value: '3,200', change: 'HECTARES RECLAIMED', icon: '🏝️', color: 'from-blue-400 to-yellow-500' },
+      { title: 'SAND MOVED', value: '450M', change: 'CUBIC METERS', icon: '⛱️', color: 'from-yellow-400 to-orange-500' },
+      { title: 'COASTLINE', value: '120KM', change: 'TRANSFORMED', icon: '🌊', color: 'from-cyan-400 to-blue-500' },
+      { title: 'HABITAT LOST', value: '500', change: 'HECTARES SEAGRASS', icon: '🌱', color: 'from-green-400 to-red-500' }
+    ],
+    timeline: [
+      { year: '2000', value: '0', description: 'hectares reclaimed' },
+      { year: '2005', value: '800', description: 'hectares Palm Jumeirah' },
+      { year: '2010', value: '2,000', description: 'hectares major progress' },
+      { year: '2020', value: '3,200', description: 'hectares total created' }
+    ],
+    comparison: {
+      before: 'NATURAL COASTLINE',
+      after: 'ARTIFICIAL ISLANDS',
+      impact: 'MARINE DISRUPTION'
+    }
+  },
+  'lake-mead': {
+    name: 'Lake Mead',
+    subtitle: 'WATER CRISIS & MEGADROUGHT',
+    keyStats: {
+      impact: '-70%',
+      metric: 'Water Level',
+      period: '2000-2023',
+      icon: '💧',
+      color: 'from-blue-500 to-orange-500',
+      trend: 'down'
+    },
+    visualData: [
+      { title: 'LEVEL DROP', value: '43M', change: 'METERS FALLEN', icon: '📉', color: 'from-blue-400 to-red-500' },
+      { title: 'CAPACITY', value: '27%', change: 'CURRENT LEVEL', icon: '🏺', color: 'from-blue-400 to-orange-500' },
+      { title: 'PEOPLE AFFECTED', value: '40M', change: 'ACROSS 7 STATES', icon: '👥', color: 'from-blue-300 to-red-400' },
+      { title: 'POWER LOSS', value: '40%', change: 'HYDROPOWER DROP', icon: '⚡', color: 'from-yellow-400 to-red-500' }
+    ],
+    timeline: [
+      { year: '2000', value: '365M', description: 'meters above sea level' },
+      { year: '2010', value: '340M', description: 'meters steady decline' },
+      { year: '2020', value: '325M', description: 'meters critical low' },
+      { year: '2023', value: '322M', description: 'meters historic low' }
+    ],
+    comparison: {
+      before: 'FULL RESERVOIR',
+      after: 'EXPOSED LAKEBED',
+      impact: 'WATER SHORTAGES'
+    }
+  },
+  alaska: {
+    name: 'Alaska',
+    subtitle: 'GLACIAL RETREAT & PERMAFROST THAW',
+    keyStats: {
+      impact: '-50%',
+      metric: 'Glacier Mass',
+      period: '1980-2020',
+      icon: '🗻',
+      color: 'from-white to-blue-500',
+      trend: 'down'
+    },
+    visualData: [
+      { title: 'WARMING RATE', value: '2X', change: 'GLOBAL AVERAGE', icon: '🌡️', color: 'from-cyan-400 to-red-500' },
+      { title: 'GLACIERS LOST', value: '50%', change: 'MASS REDUCTION', icon: '🧊', color: 'from-white to-blue-600' },
+      { title: 'PERMAFROST', value: '30%', change: 'THAWED AREAS', icon: '❄️', color: 'from-cyan-300 to-brown-500' },
+      { title: 'COASTLINE', value: '5M', change: 'ANNUAL EROSION', icon: '🌊', color: 'from-blue-400 to-red-400' }
+    ],
+    timeline: [
+      { year: '1980', value: '100%', description: 'baseline glacier mass' },
+      { year: '1995', value: '85%', description: 'significant retreat' },
+      { year: '2010', value: '70%', description: 'accelerating loss' },
+      { year: '2020', value: '50%', description: 'half mass lost' }
+    ],
+    comparison: {
+      before: 'MASSIVE GLACIERS',
+      after: 'RETREATING ICE',
+      impact: 'ARCTIC CHANGE'
+    }
+  },
+  urmia: {
+    name: 'Urmia Lake',
+    subtitle: 'LAKE DRYING CATASTROPHE',
+    keyStats: {
+      impact: '-95%',
+      metric: 'Surface Area',
+      period: '1995-2023',
+      icon: '🏜️',
+      color: 'from-blue-400 to-red-400',
+      trend: 'down'
+    },
+    visualData: [
+      { title: 'AREA LOST', value: '95%', change: 'SURFACE REDUCTION', icon: '📏', color: 'from-blue-400 to-red-500' },
+      { title: 'ORIGINAL SIZE', value: '5,000', change: 'KM² HISTORIC', icon: '🌊', color: 'from-blue-500 to-cyan-400' },
+      { title: 'SALT STORMS', value: '300KM', change: 'REACH DISTANCE', icon: '🌪️', color: 'from-gray-400 to-red-500' },
+      { title: 'SPECIES LOST', value: '75%', change: 'BIODIVERSITY DROP', icon: '🦎', color: 'from-green-400 to-red-500' }
+    ],
+    timeline: [
+      { year: '1995', value: '5,000', description: 'km² original size' },
+      { year: '2005', value: '3,000', description: 'km² declining' },
+      { year: '2015', value: '1,000', description: 'km² critical' },
+      { year: '2023', value: '250', description: 'km² current' }
+    ],
+    comparison: {
+      before: 'VAST HYPERSALINE LAKE',
+      after: 'SALT DESERT',
+      impact: 'ECOSYSTEM DEATH'
+    }
+  },
+  vegas: {
+    name: 'Las Vegas',
+    subtitle: 'DESERT GROWTH & WATER STRESS',
+    keyStats: {
+      impact: '+300%',
+      metric: 'Urban Area',
+      period: '1985-2020',
+      icon: '🌃',
+      color: 'from-yellow-400 to-red-500',
+      trend: 'up'
+    },
+    visualData: [
+      { title: 'POPULATION', value: '2.3M', change: 'FROM 25K IN 1950', icon: '👥', color: 'from-blue-400 to-yellow-500' },
+      { title: 'WATER USE', value: '47%', change: 'REDUCTION PER CAPITA', icon: '💧', color: 'from-blue-500 to-green-400' },
+      { title: 'HEAT ISLAND', value: '+7°C', change: 'ABOVE DESERT', icon: '🌡️', color: 'from-yellow-400 to-red-500' },
+      { title: 'WATER SOURCE', value: '90%', change: 'FROM COLORADO RIVER', icon: '🏞️', color: 'from-blue-400 to-cyan-500' }
+    ],
+    timeline: [
+      { year: '1950', value: '25K', description: 'people desert town' },
+      { year: '1980', value: '500K', description: 'people rapid growth' },
+      { year: '2000', value: '1.2M', description: 'people boom period' },
+      { year: '2023', value: '2.3M', description: 'people current' }
+    ],
+    comparison: {
+      before: 'SMALL DESERT TOWN',
+      after: 'MEGA METROPOLIS',
+      impact: 'WATER DEPENDENCY'
+    }
+  },
+};
+
+const Location = () => {
+    name: 'Aral Sea',
+    subtitle: 'From the world\'s 4th largest lake to desert',
+    description: 'Once covering 68,000 km² and ranking as the world\'s fourth-largest lake, the Aral Sea has shrunk to less than 10% of its original size, representing one of the planet\'s most dramatic environmental disasters.',
+    whatHappened: 'Soviet irrigation projects beginning in the 1960s diverted the Amu Darya and Syr Darya rivers for cotton cultivation. Water inflow dropped from 55 km³/year to near zero by 1980. The sea split into separate bodies: the North Aral Sea (Small Aral), South Aral Sea (Large Aral), and western basin. Salinity increased from 10 g/L to over 100 g/L—three times saltier than ocean water. The exposed Aralkum desert now covers 54,000 km², releasing 150 million tons of salt and dust annually. Landsat imagery shows the dramatic shrinkage: from 68,000 km² in 1960 to just 7,000 km² by 2014.',
+    climateImpact: 'The sea\'s disappearance created the Aralkum desert, altering regional climate patterns. Summer temperatures increased by 2-3°C while winters became 2-6°C colder. Annual precipitation decreased by 30-50mm. Salt storms now travel up to 500 km, depositing 43 million tons of salt annually across Central Asia. The loss eliminated the sea\'s moderating effect on temperature extremes, creating more continental climate conditions. Regional biodiversity collapsed: 178 animal species reduced to 38, and endemic fish species went extinct.',
+    facts: [
+      'Lost 90% of volume: from 1,100 km³ to ~110 km³',
+      'Surface area reduced from 68,000 km² to 7,000 km² (89% reduction)',
+      'Water level dropped 23 meters below original level',
+      'Salinity increased 10-fold: from 10 g/L to 100+ g/L',
+      'Fishing industry collapse: 60,000 jobs lost, 24 fish species extinct',
+      '54,000 km² of new Aralkum desert created',
+      'Annual salt/dust emissions: 150 million tons affecting 5 countries',
+    ],
+  },
+  california: {
+    name: 'California',
+    subtitle: 'Drought & Wildfires',
+    description: 'California faces unprecedented climate extremes, with megadroughts lasting over two decades and wildfire activity increasing dramatically due to rising temperatures, shifting precipitation patterns, and forest management practices.',
+    whatHappened: 'California has experienced severe droughts in 2007-2009, 2012-2016, and 2020-2022, with 2012-2015 representing the most severe drought in 1,200 years based on tree ring data. Simultaneously, wildfire activity has increased 5-fold since the 1970s. The 2020 fire season burned 4.2 million acres (1.7 million hectares)—double the previous record. Average fire season length has increased from 5 months to 7.5 months. MODIS and Landsat satellite data show dramatic changes in vegetation health and water body levels. Lake Oroville dropped to 24% capacity in 2021, while the Central Valley has sunk up to 28 feet due to groundwater depletion.',
+    climateImpact: 'Temperature increases of 1.1°C since 1895 have intensified the water cycle, creating more extreme wet and dry periods. Earlier snowmelt reduces summer water availability, while vapor pressure deficit (atmospheric thirst) has increased 30% since 1980, creating tinderbox conditions. Wildfire emissions now release 110 million tons of CO₂ annually—twice California\'s transportation sector. The 2020 fires caused air quality to exceed hazardous levels (AQI >300) for weeks, affecting 39 million people. Agricultural losses exceed $3 billion annually during drought years.',
+    facts: [
+      'Wildfire area burned increased 5x since 1970s (average 250,000 to 1.2M acres/year)',
+      '2020 fires: 4.2 million acres burned, 33 fatalities, 10,488 structures destroyed',
+      'Fire season extended by 2.5 months since 1970s',
+      'Central Valley subsidence: up to 28 feet since 1920s due to groundwater pumping',
+      'Drought frequency: 1 in 4 years now classified as severe or extreme',
+      'Economic impact: $40 billion annually from combined drought and fire damages',
+      'Temperature rise: 1.1°C since 1895, with accelerating warming since 1980',
+    ],
+  },
+  dubai: {
+    name: 'Dubai',
+    subtitle: 'Urban Expansion & Land Reclamation',
+    description: 'Dubai has created over 3,200 hectares of artificial land through massive reclamation projects, fundamentally altering 120 km of natural coastline and marine ecosystems in the Arabian Gulf.',
+    whatHappened: 'Since 2001, Dubai has undertaken unprecedented land reclamation projects using 450 million cubic meters of sand and rock. The Palm Jumeirah (560 hectares), Palm Jebel Ali (planned 980 hectares), and The World islands (300 islands covering 9 km × 6 km) represent the largest artificial archipelago projects globally. Landsat and WorldView satellite imagery shows dramatic coastline changes: natural beaches replaced by engineered shorelines extending 5-7 km into the Arabian Gulf. Dredging operations moved sand equivalent to 2.5 times the volume of the Empire State Building annually during peak construction (2002-2008).',
+    climateImpact: 'Land reclamation has disrupted natural current patterns, reducing water circulation by 30-40% in affected areas. This creates hypoxic zones and increases water temperatures by 1-2°C locally. Seagrass beds covering 500 hectares have been destroyed, eliminating critical nursery habitat for marine species. The altered coastline increases storm surge vulnerability and coastal erosion. Urban heat island effects intensify due to reduced thermal capacity from filled marine areas, raising local temperatures by 2-4°C above natural conditions.',
+    facts: [
+      'Land reclamation area: 3,200+ hectares since 2001',
+      'Sand/rock volume used: 450 million cubic meters',
+      'Natural coastline altered: 120 km transformed',
+      'Palm Jumeirah: 17 fronds, 2 km trunk, 11 km outer crescent',
+      'Marine habitat loss: 500 hectares of seagrass beds destroyed',
+      'Water circulation reduced by 30-40% in reclaimed areas',
+      'Construction employed 40,000 workers and 100+ vessels at peak',
+    ],
+  },
+  'lake-mead': {
+    name: 'Lake Mead',
+    subtitle: 'Declining Water Levels & Megadrought',
+    description: 'Lake Mead, the largest reservoir in the United States by capacity, has dropped to historically low levels due to a 23-year megadrought and increased water demand across the Colorado River Basin.',
+    whatHappened: 'Lake Mead\'s water level has fallen 43 meters since 2000, from 365 meters to 322 meters above sea level—just 27% of full capacity. The "bathtub ring" of mineral deposits now extends 40 meters up the reservoir walls, visible in satellite imagery. GRACE satellite data shows the Colorado River Basin has lost 65 cubic kilometers of water since 2000—equivalent to twice Lake Mead\'s current volume. Inflow has averaged only 8.1 million acre-feet annually since 2000, compared to the 20th-century average of 16.1 million acre-feet. The reservoir last reached full capacity in 1983.',
+    climateImpact: 'The megadrought reflects 20% reduction in Colorado River flow due to higher temperatures increasing evaporation and reducing snowpack. Every 1°C of warming reduces river flow by 4-10%. Lake Mead\'s declining levels trigger unprecedented water shortage declarations affecting 40 million people across seven states. Hydropower generation has dropped 40%, from 2.08 billion kWh to 1.25 billion kWh annually. The declining reservoir exposes previously submerged intake structures, threatening water supply systems.',
+    facts: [
+      'Water level drop: 43 meters since 2000 (365m to 322m elevation)',
+      'Current capacity: 27% of maximum (8.5 of 31.4 million acre-feet)',
+      'Colorado River Basin water loss: 65 km³ since 2000 (GRACE data)',
+      'Average inflow 2000-2023: 8.1 million acre-feet (50% below 20th century)',
+      'Hydropower reduction: 40% decrease in generation capacity',
+      'Bathtub ring: 40-meter white mineral deposits visible from space',
+      'Serves 25 million people across Nevada, Arizona, California',
+    ],
+  },
+  alaska: {
+    name: 'Alaska',
+    subtitle: 'Rapid Arctic Warming & Ice Loss',
+    description: 'Alaska is experiencing warming at twice the global rate, with dramatic glacier retreat, permafrost thaw, and ecosystem shifts representing one of Earth\'s most visible climate change impacts.',
+    whatHappened: 'Alaska has warmed 2.1°C since 1950—twice the global average. Glaciers have lost 75 gigatons of ice annually since 2003, contributing 0.2mm/year to sea level rise. The Columbia Glacier has retreated 20 km since 1980, while Muir Glacier retreated 50 km in the past century. Permafrost temperatures have increased 1-2°C, with 20% of near-surface permafrost at risk of thawing by 2050. Landsat time series show dramatic landscape changes: shrubification of tundra, earlier spring snowmelt, and expanded wildfire activity. The 2019 fire season burned 1.06 million hectares—unprecedented for the Arctic.',
+    climateImpact: 'Permafrost thaw releases stored carbon: Alaska\'s soils contain 60% of global permafrost carbon (1,400-1,700 billion tons). Thawing permafrost destabilizes infrastructure, with damage costs projected at $5.5 billion by 2099. Ecosystem shifts include boreal forest expansion northward at 2.5 km/decade and marine ecosystem changes as sea ice extent declines 13% per decade. Arctic sea ice minimum near Alaska has declined from 7.5 million km² (1979) to 4.3 million km² (2023), affecting polar bear habitat and Indigenous hunting patterns.',
+    facts: [
+      'Warming rate: 2.1°C since 1950 (2x global average)',
+      'Annual glacier mass loss: 75 gigatons (contributes 0.2mm sea level rise)',
+      'Permafrost temperature rise: 1-2°C, 20% at risk by 2050',
+      'Columbia Glacier retreat: 20 km since 1980',
+      'Wildfire increase: 2019 burned 1.06M hectares (record for Arctic)',
+      'Permafrost carbon storage: 1,400-1,700 billion tons (60% of global)',
+      'Sea ice decline: 13% per decade, affecting 200,000 km² annually',
+    ],
+  },
+  urmia: {
+    name: 'Lake Urmia',
+    subtitle: 'Hypersaline Lake Desiccation',
+    description: 'Lake Urmia, once the Middle East\'s largest lake and world\'s second-largest hypersaline lake, has lost 95% of its surface area since 1995, transforming from a 5,000 km² waterbody to scattered hypersaline pools.',
+    whatHappened: 'Water diversions for irrigation reduced inflow from 9.5 billion m³ to 1.2 billion m³ annually. Over 40 dams and diversions on tributary rivers, combined with severe droughts (2007-2018), caused the lake to fragment into disconnected hypersaline pools. MODIS and Landsat data show surface area declining from 5,000 km² (1995) to 250 km² (2023). Salinity increased from 200 g/L to over 340 g/L—approaching Dead Sea levels. The exposed lakebed now covers 4,750 km², creating the Urmia salt desert.',
+    climateImpact: 'The dried lakebed generates 4-7 million tons of salt dust annually, affecting air quality across northwest Iran and eastern Turkey. Salt storms now reach distances of 500 km, damaging agriculture and causing respiratory health issues for 14 million people. Local climate has shifted to more continental conditions with temperature extremes increased by 2-3°C. The lake\'s disappearance eliminated its moderating influence on regional precipitation patterns, reducing local humidity by 30%.',
+    facts: [
+      'Surface area loss: 95% reduction from 5,000 km² to 250 km²',
+      'Water inflow reduced from 9.5 to 1.2 billion m³ annually',
+      'Salinity increase: 200 g/L to 340 g/L (near Dead Sea levels)',
+      'Salt dust emissions: 4-7 million tons annually',
+      'Health impact: 14 million people affected by dust storms',
+      '40+ dams built on tributary rivers reducing inflow',
+      'Exposed lakebed: 4,750 km² of new salt desert created',
+    ],
+  },
+  vegas: {
+    name: 'Las Vegas',
+    subtitle: 'Desert Metropolis & Water Stress',
+    description: 'Las Vegas exemplifies urban growth in an arid environment, transforming from a desert town of 25,000 (1950) to a metropolitan area of 2.3 million people while facing severe water constraints in the driest state in the US.',
+    whatHappened: 'Las Vegas receives 90% of its water from Lake Mead via the Colorado River, making it uniquely vulnerable to the ongoing megadrought. Per capita water use has decreased 47% since 2002 through conservation measures, from 314 to 166 gallons per day. However, population growth has offset conservation gains. The city has built increasingly deeper intake straws as Lake Mead levels drop: the third intake tunnel, completed in 2015, can draw water even if the lake drops to dead pool levels.',
+    climateImpact: 'Urban heat island effects are extreme: Las Vegas temperatures can be 7-10°C higher than surrounding desert due to concrete, asphalt, and reduced vegetation. Annual average temperature has increased 2.2°C since 1970. The city experiences 70+ days above 40°C annually, up from 45 days in the 1960s. Water stress intensifies during drought periods, with Tier 1 shortage declarations reducing allocation by 8%. Climate projections suggest 30-50% reduction in Colorado River flow by 2050.',
+    facts: [
+      'Population growth: 25,000 (1950) to 2.3 million (2023)',
+      'Water use reduction: 47% per capita decrease since 2002',
+      'Current usage: 166 gallons/day per person (national average: 300)',
+      'Temperature rise: 2.2°C since 1970 (extreme heat days doubled)',
+      'Urban heat island: 7-10°C above surrounding desert',
+      'Water source: 90% from Colorado River via Lake Mead',
+      'Drought vulnerability: Tier 1 shortage = 8% allocation reduction',
+    ],
+  },
+};
+
+const Location = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [sliderPosition, setSliderPosition] = useState(100);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const location = id ? locationData[id] : null;
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  const handleSliderInteraction = (clientX: number) => {
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    setSliderPosition(percentage);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    handleSliderInteraction(e.clientX);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    handleSliderInteraction(e.touches[0].clientX);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    handleSliderInteraction(e.clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    handleSliderInteraction(e.touches[0].clientX);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [isDragging]);
+
+  if (!location) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-muted-foreground">Location not found</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pt-16"> {/* Add padding for nav */}
+      {/* Hero */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
+        
+        <div className={`relative z-10 text-center px-4 sm:px-6 max-w-4xl transition-all duration-1000 ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in">
+            {location.name}
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-cosmic-cyan mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            {location.subtitle}
+          </p>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            {location.description}
+          </p>
+        </div>
+
+        <Button
+          onClick={() => navigate('/')}
+          variant="ghost"
+          className="absolute top-20 sm:top-8 left-4 sm:left-8 text-cosmic-cyan hover:text-cosmic-cyan/80 hover:bg-cosmic-cyan/10 touch-target"
+        >
+          <ArrowLeft className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Back to Home</span>
+          <span className="sm:hidden">Back</span>
+        </Button>
+      </section>
+
+      {/* Before/After Section */}
+      <section className="relative py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 bg-gradient-to-r from-cosmic-blue to-cosmic-cyan bg-clip-text text-transparent">
+            Before & After Comparison
+          </h2>
+
+          {/* Image comparison slider */}
+          <div 
+            ref={containerRef}
+            className="relative aspect-video rounded-2xl overflow-hidden glass-card mb-6 sm:mb-8 group select-none cursor-ew-resize"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+          >
+            {/* After image (full background) */}
+            <img
+              src={locationImages[id!]?.after}
+              alt="After"
+              className="absolute inset-0 w-full h-full object-cover z-0"
+              draggable={false}
+            />
+            {/* Before image (clipped by slider) */}
+            <div 
+              className="absolute inset-0 overflow-hidden z-10"
+              style={{ width: `${sliderPosition}%` }}
+            >
+              <img
+                src={locationImages[id!]?.before}
+                alt="Before"
+                className="w-full h-full object-cover"
+                draggable={false}
+                style={{ width: `${100 / sliderPosition * 100}%` }}
+              />
+            </div>
+            {/* Slider control */}
+            <div
+              className="absolute top-0 bottom-0 w-1 bg-cosmic-cyan shadow-lg shadow-cosmic-cyan/50 cursor-ew-resize z-20 pointer-events-none"
+              style={{ left: `${sliderPosition}%` }}
+            >
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-cosmic-cyan rounded-full flex items-center justify-center shadow-lg pointer-events-auto">
+                <div className="flex gap-1">
+                  <div className="w-0.5 h-3 sm:w-1 sm:h-4 bg-cosmic-black rounded" />
+                  <div className="w-0.5 h-3 sm:w-1 sm:h-4 bg-cosmic-black rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center text-muted-foreground text-sm sm:text-base">
+            <span className="hidden sm:inline">Drag the slider to compare past and present</span>
+            <span className="sm:hidden">Swipe to compare</span>
+          </p>
+        </div>
+      </section>
+
+      {/* Story Section */}
+      <section className="relative py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-transparent via-cosmic-purple/5 to-transparent">
+        <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
+          <Card className="glass-card p-6 sm:p-8 hover:scale-[1.02] transition-transform">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-cosmic-cyan">What Happened?</h3>
+            <p className="text-sm sm:text-base md:text-lg text-foreground/90 leading-relaxed">
+              {location.whatHappened}
+            </p>
+          </Card>
+
+          <Card className="glass-card p-6 sm:p-8 hover:scale-[1.02] transition-transform">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-cosmic-cyan">Climate Impact</h3>
+            <p className="text-sm sm:text-base md:text-lg text-foreground/90 leading-relaxed">
+              {location.climateImpact}
+            </p>
+          </Card>
+
+          <Card className="glass-card p-6 sm:p-8 hover:scale-[1.02] transition-transform">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-cosmic-cyan">Quick Facts</h3>
+            <ul className="space-y-2 sm:space-y-3">
+              {location.facts.map((fact, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-cosmic-cyan mr-2 sm:mr-3 text-lg sm:text-xl">•</span>
+                  <span className="text-sm sm:text-base md:text-lg text-foreground/90">{fact}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+      </section>
+
+      {/* Closing */}
+      <section className="relative py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+        <div className="text-center">
+          <Button
+            size="lg"
+            onClick={() => navigate('/')}
+            className="bg-gradient-to-r from-cosmic-blue to-cosmic-cyan hover:from-cosmic-cyan hover:to-cosmic-blue text-white font-semibold px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-6 text-sm sm:text-base md:text-lg rounded-full shadow-lg shadow-cosmic-blue/30 transition-all hover:scale-105 w-full sm:w-auto touch-target"
+          >
+            <ArrowLeft className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
+            Explore More Locations
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Location;

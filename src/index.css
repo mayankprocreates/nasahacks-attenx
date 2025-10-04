@@ -1,0 +1,467 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Enhanced space-themed cosmic design system */
+    --background: 203 39% 15%;
+    --foreground: 210 40% 98%;
+
+    --card: 203 39% 18%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 203 39% 18%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 203 39% 15%;
+
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 28% 25%;
+    --muted-foreground: 215 20% 75%;
+
+    --accent: 189 94% 43%;
+    --accent-foreground: 203 39% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 28% 25%;
+    --input: 215 28% 25%;
+    --ring: 217 91% 60%;
+
+    --radius: 1rem;
+
+    /* Enhanced cosmic colors */
+    --cosmic-blue: 217 91% 60%;
+    --neon-cyan: 189 94% 43%;
+    --purple-glow: 258 90% 66%;
+    --space-black: 203 39% 15%;
+    --nebula-purple: 270 60% 40%;
+    
+    /* Brighter glassmorphism */
+    --glass-bg: 203 39% 18%;
+    --glass-border: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    html {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    html {
+      font-size: 13px;
+    }
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  @media (max-width: 768px) {
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
+  }
+
+  /* Performance optimizations */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Enhanced glassmorphic card effect */
+  .glass-card {
+    background: rgba(59, 130, 246, 0.15);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.15), 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Neon glow effect */
+  .neon-glow {
+    text-shadow: 0 0 10px hsl(var(--neon-cyan)),
+                 0 0 20px hsl(var(--neon-cyan)),
+                 0 0 30px hsl(var(--neon-cyan));
+  }
+
+  /* Cosmic gradient backgrounds */
+  .cosmic-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--space-black)) 0%,
+      hsl(var(--nebula-purple)) 50%,
+      hsl(var(--cosmic-blue)) 100%);
+  }
+
+  /* Parallax container */
+  .parallax-container {
+    perspective: 1px;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Text reveal animation */
+  .reveal-text {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: revealText 1s ease-out forwards;
+  }
+
+  @keyframes revealText {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Floating animation for stars */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  /* Pulse glow for interactive elements */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.8);
+    }
+  }
+
+  /* Smooth section transitions */
+  section {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Enhanced blending for hero section */
+  .hero-blend {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 60%,
+      hsl(var(--background) / 0.1) 70%,
+      hsl(var(--background) / 0.3) 80%,
+      hsl(var(--background) / 0.6) 90%,
+      hsl(var(--background)) 100%
+    );
+  }
+
+  /* Mobile-specific responsive classes */
+  .mobile-text-sm {
+    @media (max-width: 480px) {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+  }
+
+  .mobile-text-base {
+    @media (max-width: 480px) {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+
+  .mobile-text-lg {
+    @media (max-width: 480px) {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+  }
+
+  .mobile-text-xl {
+    @media (max-width: 480px) {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+  }
+
+  .mobile-text-2xl {
+    @media (max-width: 480px) {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
+
+  .mobile-text-3xl {
+    @media (max-width: 480px) {
+      font-size: 1.875rem;
+      line-height: 2.25rem;
+    }
+  }
+
+  .mobile-text-4xl {
+    @media (max-width: 480px) {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+  }
+
+  /* Mobile spacing utilities */
+  .mobile-p-4 {
+    @media (max-width: 480px) {
+      padding: 1rem;
+    }
+  }
+
+  .mobile-p-6 {
+    @media (max-width: 480px) {
+      padding: 1.5rem;
+    }
+  }
+
+  .mobile-p-8 {
+    @media (max-width: 480px) {
+      padding: 2rem;
+    }
+  }
+
+  .mobile-m-4 {
+    @media (max-width: 480px) {
+      margin: 1rem;
+    }
+  }
+
+  .mobile-m-6 {
+    @media (max-width: 480px) {
+      margin: 1.5rem;
+    }
+  }
+
+  .mobile-m-8 {
+    @media (max-width: 480px) {
+      margin: 2rem;
+    }
+  }
+
+  /* Touch-friendly interactive elements */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Performance optimizations for mobile */
+  @media (max-width: 768px) {
+    .glass-card {
+      backdrop-filter: blur(8px);
+    }
+    
+    /* Simplify animations on mobile */
+    .animate-float {
+      animation-duration: 8s;
+    }
+    
+    .animate-shimmer {
+      animation-duration: 4s;
+    }
+  }
+
+  /* Card grid improvements */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  /* Ensure cards have consistent height */
+  .card-grid > * {
+    height: 100%;
+    min-height: 400px;
+  }
+
+  @media (max-width: 640px) {
+    .card-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .card-grid > * {
+      min-height: 350px;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Mobile-specific optimizations */
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Enhanced mobile slider styles */
+  .slider {
+    -webkit-appearance: none;
+    height: 8px;
+    border-radius: 4px;
+    background: #374151;
+    outline: none;
+    touch-action: manipulation;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    touch-action: manipulation;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    touch-action: manipulation;
+  }
+  
+  /* Mobile-specific spacing */
+  @media (max-width: 640px) {
+    .mobile-compact {
+      padding: 1rem;
+    }
+    
+    .mobile-text-sm {
+      font-size: 0.875rem;
+    }
+    
+    .mobile-btn-full {
+      width: 100%;
+    }
+  }
+  
+  /* Prevent zoom on input focus on iOS */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    input[type="range"] {
+      font-size: 16px;
+    }
+    
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
+  
+  /* Better tap highlights */
+  * {
+    -webkit-tap-highlight-color: rgba(99, 179, 237, 0.2);
+  }
+  
+  /* Smooth scrolling for mobile */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improve mobile text readability */
+  @media (max-width: 640px) {
+    body {
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    
+    /* Ensure minimum font sizes for better readability */
+    .mobile-min-text {
+      font-size: max(14px, 1rem);
+    }
+    
+    /* Better button spacing for touch */
+    button, .btn {
+      min-height: 44px;
+      padding: 12px 16px;
+    }
+  }
+}

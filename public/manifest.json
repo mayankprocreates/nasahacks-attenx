@@ -1,0 +1,19 @@
+{
+  "name": "Earth Whispers - When Everyone Was Aiming for the Skies",
+  "short_name": "Earth Whispers",
+  "description": "An immersive journey through Earth's transformation while humanity looked to the stars",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["education", "environment", "science"],
+  "lang": "en-US"
+}
