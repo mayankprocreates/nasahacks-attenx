@@ -71,6 +71,8 @@ const Map = () => {
               src={earthMap} 
               alt="World Map" 
               className="w-full h-auto"
+              loading="eager"
+              decoding="async"
             />
             
             {/* Location Pins */}

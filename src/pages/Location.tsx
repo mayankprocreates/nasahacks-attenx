@@ -5,6 +5,7 @@ import { ArrowLeft, TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react
 import { Card } from '@/components/ui/card';
 import { locationImages } from '@/assets/location-images';
 import { useIsMobile } from '@/hooks/use-mobile';
+import OptimizedImage from '@/components/OptimizedImage';
 
 const locationData: Record<string, any> = {
   amazon: {
@@ -373,10 +374,13 @@ const Location = () => {
         <Card className="bg-black/20 backdrop-blur-lg border-white/10 overflow-hidden">
           <div className="relative h-64 sm:h-80 md:h-96 lg:h-[500px]">
             {/* After Image (base layer) */}
-            <img
+            <OptimizedImage
               src={afterImage}
               alt={`${location.name} after`}
               className="absolute inset-0 w-full h-full object-cover"
+              priority={true}
+              placeholder="🌍"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
             />
             
             {/* Before Image with Clip Path (overlay) */}
@@ -386,10 +390,13 @@ const Location = () => {
                 clipPath: `polygon(0% 0%, ${sliderPosition}% 0%, ${sliderPosition}% 100%, 0% 100%)`,
               }}
             >
-              <img
+              <OptimizedImage
                 src={beforeImage}
                 alt={`${location.name} before`}
                 className="w-full h-full object-cover"
+                priority={true}
+                placeholder="🌎"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
               />
             </div>
             
