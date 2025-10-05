@@ -48,7 +48,7 @@ const HeroSection = () => {
         </h1>
 
         <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/80 mb-8 sm:mb-10 md:mb-12 animate-fade-in px-4 sm:px-0" style={{ animationDelay: '0.3s' }}>
-          A journey through Earth's transformation
+          Let's not forget our earth 🌎
         </p>
 
         <Button
