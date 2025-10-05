@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { locationImages } from '@/assets/location-images';
 import { useIsMobile } from '@/hooks/use-mobile';
 import OptimizedImage from '@/components/OptimizedImage';
+import HistoricalAQI from '@/components/HistoricalAQI';
 
 const locationData: Record<string, any> = {
   amazon: {
@@ -468,6 +469,16 @@ const Location = () => {
           </div>
         </Card>
       </div>
+
+      {/* Air Quality Trends - Only for specific cities */}
+      {(id === 'dubai' || id === 'vegas' || id === 'california') && (
+        <div className="px-4 sm:px-6 mb-8 sm:mb-12">
+          <HistoricalAQI 
+            city={location.name} 
+            className="w-full"
+          />
+        </div>
+      )}
 
       {/* Call to Action */}
       <div className="px-4 sm:px-6 pb-8 sm:pb-12">
