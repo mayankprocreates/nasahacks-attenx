@@ -52,7 +52,7 @@ const Navigation = () => {
             >
               <div className="text-2xl">🌍</div>
               <span className="font-bold text-lg bg-gradient-to-r from-cosmic-cyan to-cosmic-blue bg-clip-text text-transparent">
-                Earth Whispers
+                Beneath Our Sky 🌎
               </span>
             </div>
 
